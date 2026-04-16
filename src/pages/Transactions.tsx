@@ -5,7 +5,7 @@ import { Search, Calendar, Download, Eye, X, Printer } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
 export default function Transactions() {
-  const { transactions } = useStore();
+  const { transactions, clearTransactions } = useStore();
   const [selectedTransaction, setSelectedTransaction] = useState<any>(null);
 
   return (
@@ -15,10 +15,23 @@ export default function Transactions() {
           <h1 className="text-2xl font-bold text-slate-900">Riwayat Transaksi</h1>
           <p className="text-slate-500 mt-1">Daftar semua penjualan yang telah dilakukan.</p>
         </div>
-        <button className="flex items-center justify-center gap-2 px-4 py-2.5 bg-white border border-slate-200 text-slate-700 rounded-xl font-semibold hover:bg-slate-50 transition-all shadow-sm">
-          <Download size={20} />
-          Ekspor Laporan
-        </button>
+        <div className="flex gap-3">
+          <button 
+            onClick={() => {
+              if (window.confirm('Apakah Anda yakin ingin menghapus semua riwayat transaksi?')) {
+                clearTransactions();
+              }
+            }}
+            className="flex items-center justify-center gap-2 px-4 py-2.5 bg-red-50 border border-red-100 text-red-600 rounded-xl font-semibold hover:bg-red-100 transition-all shadow-sm"
+          >
+            <X size={20} />
+            Hapus Cache Riwayat
+          </button>
+          <button className="flex items-center justify-center gap-2 px-4 py-2.5 bg-white border border-slate-200 text-slate-700 rounded-xl font-semibold hover:bg-slate-50 transition-all shadow-sm">
+            <Download size={20} />
+            Ekspor Laporan
+          </button>
+        </div>
       </div>
 
       {/* Filters */}

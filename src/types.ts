@@ -5,6 +5,7 @@ export interface Product {
   stock: number;
   category: string;
   image?: string;
+  description?: string;
 }
 
 export interface CartItem extends Product {
@@ -34,4 +35,4 @@ export interface StockMovement {
   date: string;
 }
 
-export type Page = 'dashboard' | 'products' | 'inventory' | 'pos' | 'transactions';
+export type Page = 'dashboard' | 'products' | 'inventory' | 'pos' | 'transactions' | 'webstore' | 'login';

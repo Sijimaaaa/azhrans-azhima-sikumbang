@@ -5,13 +5,28 @@ import Products from './pages/Products';
 import Inventory from './pages/Inventory';
 import PoS from './pages/PoS';
 import Transactions from './pages/Transactions';
+import Webstore from './pages/Webstore';
+import Login from './pages/Login';
 import { Page } from './types';
+import { useStore } from './store';
 
 export default function App() {
-  const [currentPage, setCurrentPage] = useState<Page>('dashboard');
+  const [currentPage, setCurrentPage] = useState<Page>('webstore');
+  const { isAuthenticated } = useStore();
+
+  const adminPages: Page[] = ['dashboard', 'products', 'inventory', 'pos', 'transactions'];
 
   const renderPage = () => {
+    // Protected pages logic
+    if (adminPages.includes(currentPage) && !isAuthenticated) {
+      return <Login setPage={setCurrentPage} />;
+    }
+
     switch (currentPage) {
+      case 'webstore':
+        return <Webstore setPage={setCurrentPage} />;
+      case 'login':
+        return <Login setPage={setCurrentPage} />;
       case 'dashboard':
         return <Dashboard />;
       case 'products':
@@ -23,9 +38,13 @@ export default function App() {
       case 'transactions':
         return <Transactions />;
       default:
-        return <Dashboard />;
+        return <Webstore setPage={setCurrentPage} />;
     }
   };
+
+  if (currentPage === 'webstore' || currentPage === 'login' || (!isAuthenticated && adminPages.includes(currentPage))) {
+    return renderPage();
+  }
 
   return (
     <Layout currentPage={currentPage} setPage={setCurrentPage}>
