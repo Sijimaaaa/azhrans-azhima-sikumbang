@@ -14,7 +14,9 @@ import {
   ChevronLeft,
   ChevronRight,
   ArrowLeft,
-  LogOut
+  LogOut,
+  Sparkles,
+  Users
 } from 'lucide-react';
 import { Page } from '../types';
 import { useStore } from '../store';
@@ -32,8 +34,10 @@ export default function Layout({ children, currentPage, setPage }: LayoutProps) 
 
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
+    { id: 'insights', label: 'AI Business Insight', icon: Sparkles },
     { id: 'products', label: 'Kelola Produk', icon: Package },
     { id: 'inventory', label: 'Inventaris', icon: Boxes },
+    { id: 'crm', label: 'Manajemen Pelanggan', icon: Users },
     { id: 'pos', label: 'Kasir / PoS', icon: ShoppingCart },
     { id: 'transactions', label: 'Riwayat Transaksi', icon: History },
   ];

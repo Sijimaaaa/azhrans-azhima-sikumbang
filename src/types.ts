@@ -3,9 +3,15 @@ export interface Product {
   name: string;
   price: number;
   stock: number;
+  costPrice: number;
   category: string;
   image?: string;
   description?: string;
+  supplier?: {
+    name: string;
+    whatsapp: string;
+    email: string;
+  };
 }
 
 export interface CartItem extends Product {
@@ -35,4 +41,14 @@ export interface StockMovement {
   date: string;
 }
 
-export type Page = 'dashboard' | 'products' | 'inventory' | 'pos' | 'transactions' | 'webstore' | 'login';
+export interface Customer {
+  id: string;
+  name: string;
+  phone: string;
+  email?: string;
+  totalSpent: number;
+  lastPurchase: string;
+  notes?: string;
+}
+
+export type Page = 'dashboard' | 'products' | 'inventory' | 'pos' | 'transactions' | 'webstore' | 'login' | 'insights' | 'crm';

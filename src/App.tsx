@@ -7,6 +7,8 @@ import PoS from './pages/PoS';
 import Transactions from './pages/Transactions';
 import Webstore from './pages/Webstore';
 import Login from './pages/Login';
+import Insights from './pages/Insights';
+import CRM from './pages/CRM';
 import { Page } from './types';
 import { useStore } from './store';
 
@@ -14,7 +16,7 @@ export default function App() {
   const [currentPage, setCurrentPage] = useState<Page>('webstore');
   const { isAuthenticated } = useStore();
 
-  const adminPages: Page[] = ['dashboard', 'products', 'inventory', 'pos', 'transactions'];
+  const adminPages: Page[] = ['dashboard', 'products', 'inventory', 'pos', 'transactions', 'insights', 'crm'];
 
   const renderPage = () => {
     // Protected pages logic
@@ -37,6 +39,10 @@ export default function App() {
         return <PoS />;
       case 'transactions':
         return <Transactions />;
+      case 'insights':
+        return <Insights />;
+      case 'crm':
+        return <CRM />;
       default:
         return <Webstore setPage={setCurrentPage} />;
     }

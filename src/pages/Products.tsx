@@ -5,18 +5,23 @@ import { Plus, Search, Edit2, Trash2, Filter, Package, X, Image as ImageIcon, Up
 import { motion, AnimatePresence } from 'motion/react';
 
 export default function Products() {
-  const { products, deleteProduct, addProduct, adjustStock } = useStore();
+  const { products, deleteProduct, addProduct, updateProduct, adjustStock } = useStore();
   const [searchTerm, setSearchTerm] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
   const [isRestockModalOpen, setIsRestockModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
   const [restockAmount, setRestockAmount] = useState('');
   const [newProduct, setNewProduct] = useState({
+    id: '',
     name: '',
     price: '',
+    costPrice: '',
     stock: '',
     category: 'Makanan',
-    image: ''
+    image: '',
+    supplierName: '',
+    supplierWA: ''
   });
 
   const filteredProducts = products.filter(p => 
@@ -39,17 +44,52 @@ export default function Products() {
     e.preventDefault();
     if (!newProduct.name || !newProduct.price || !newProduct.stock) return;
 
-    addProduct({
-      id: Math.random().toString(36).substr(2, 9),
+    const productData = {
+      id: isEditMode ? newProduct.id : Math.random().toString(36).substr(2, 9),
       name: newProduct.name,
       price: Number(newProduct.price),
+      costPrice: Number(newProduct.costPrice),
       stock: Number(newProduct.stock),
       category: newProduct.category,
-      image: newProduct.image
-    });
+      image: newProduct.image,
+      supplier: {
+        name: newProduct.supplierName || 'Supplier Umum',
+        whatsapp: newProduct.supplierWA || '628123456789',
+        email: ''
+      }
+    };
 
-    setNewProduct({ name: '', price: '', stock: '', category: 'Makanan', image: '' });
+    if (isEditMode) {
+      updateProduct(productData);
+    } else {
+      addProduct(productData);
+    }
+
+    setNewProduct({ id: '', name: '', price: '', costPrice: '', stock: '', category: 'Makanan', image: '', supplierName: '', supplierWA: '' });
     setIsModalOpen(false);
+    setIsEditMode(false);
+  };
+
+  const openAddModal = () => {
+    setNewProduct({ id: '', name: '', price: '', costPrice: '', stock: '', category: 'Makanan', image: '', supplierName: '', supplierWA: '' });
+    setIsEditMode(false);
+    setIsModalOpen(true);
+  };
+
+  const openEditModal = (product: any) => {
+    setNewProduct({
+      id: product.id,
+      name: product.name,
+      price: product.price.toString(),
+      costPrice: product.costPrice.toString(),
+      stock: product.stock.toString(),
+      category: product.category,
+      image: product.image || '',
+      supplierName: product.supplier?.name || '',
+      supplierWA: product.supplier?.whatsapp || ''
+    });
+    setIsEditMode(true);
+    setIsModalOpen(true);
   };
 
   const handleRestock = (e: React.FormEvent) => {
@@ -77,7 +117,7 @@ export default function Products() {
           <p className="text-slate-500 mt-1">Tambah, edit, atau hapus produk dari katalog Anda.</p>
         </div>
         <button 
-          onClick={() => setIsModalOpen(true)}
+          onClick={openAddModal}
           className="flex items-center justify-center gap-2 px-4 py-2.5 bg-indigo-600 text-white rounded-xl font-semibold hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-200"
         >
           <Plus size={20} />
@@ -96,9 +136,12 @@ export default function Products() {
               className="bg-white w-full max-w-md rounded-3xl shadow-2xl overflow-hidden"
             >
               <div className="p-6 border-b border-slate-100 flex items-center justify-between">
-                <h2 className="text-xl font-bold text-slate-900">Tambah Produk Baru</h2>
+                <h2 className="text-xl font-bold text-slate-900">{isEditMode ? 'Edit Produk' : 'Tambah Produk Baru'}</h2>
                 <button 
-                  onClick={() => setIsModalOpen(false)}
+                  onClick={() => {
+                    setIsModalOpen(false);
+                    setIsEditMode(false);
+                  }}
                   className="p-2 hover:bg-slate-100 rounded-full text-slate-400 transition-colors"
                 >
                   <X size={20} />
@@ -155,16 +198,30 @@ export default function Products() {
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1.5">
-                    <label className="text-sm font-bold text-slate-700">Harga (IDR)</label>
+                    <label className="text-sm font-bold text-slate-700">Harga Jual (IDR)</label>
                     <input 
                       required
                       type="number" 
                       placeholder="0"
                       value={newProduct.price}
                       onChange={(e) => setNewProduct({...newProduct, price: e.target.value})}
-                      className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
+                      className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-bold text-indigo-600"
                     />
                   </div>
+                  <div className="space-y-1.5">
+                    <label className="text-sm font-bold text-slate-700">Modals/HPP (IDR)</label>
+                    <input 
+                      required
+                      type="number" 
+                      placeholder="0"
+                      value={newProduct.costPrice}
+                      onChange={(e) => setNewProduct({...newProduct, costPrice: e.target.value})}
+                      className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500/20 focus:border-orange-500 transition-all font-bold text-orange-600"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-1.5">
                     <label className="text-sm font-bold text-slate-700">Stok Awal</label>
                     <input 
@@ -173,27 +230,50 @@ export default function Products() {
                       placeholder="0"
                       value={newProduct.stock}
                       onChange={(e) => setNewProduct({...newProduct, stock: e.target.value})}
-                      className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
+                      className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-bold"
                     />
                   </div>
+                  <div className="space-y-1.5">
+                    <label className="text-sm font-bold text-slate-700">Kategori</label>
+                    <select 
+                      value={newProduct.category}
+                      onChange={(e) => setNewProduct({...newProduct, category: e.target.value})}
+                      className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all font-bold"
+                    >
+                      <option value="Makanan">Makanan</option>
+                      <option value="Minuman">Minuman</option>
+                      <option value="Snack">Snack</option>
+                      <option value="Lainnya">Lainnya</option>
+                    </select>
+                  </div>
                 </div>
-                <div className="space-y-1.5">
-                  <label className="text-sm font-bold text-slate-700">Kategori</label>
-                  <select 
-                    value={newProduct.category}
-                    onChange={(e) => setNewProduct({...newProduct, category: e.target.value})}
-                    className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all"
-                  >
-                    <option value="Makanan">Makanan</option>
-                    <option value="Minuman">Minuman</option>
-                    <option value="Snack">Snack</option>
-                    <option value="Lainnya">Lainnya</option>
-                  </select>
+
+                <div className="p-4 bg-slate-50 rounded-2xl border border-slate-200 space-y-3">
+                  <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Informasi Supplier</p>
+                  <div className="grid grid-cols-2 gap-3">
+                    <input 
+                      type="text" 
+                      placeholder="Nama Supplier"
+                      value={newProduct.supplierName}
+                      onChange={(e) => setNewProduct({...newProduct, supplierName: e.target.value})}
+                      className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs focus:outline-none"
+                    />
+                    <input 
+                      type="text" 
+                      placeholder="WA (Contoh: 6281..)"
+                      value={newProduct.supplierWA}
+                      onChange={(e) => setNewProduct({...newProduct, supplierWA: e.target.value})}
+                      className="w-full px-3 py-2 bg-white border border-slate-200 rounded-lg text-xs focus:outline-none"
+                    />
+                  </div>
                 </div>
                 <div className="pt-4 flex gap-3">
                   <button 
                     type="button"
-                    onClick={() => setIsModalOpen(false)}
+                    onClick={() => {
+                      setIsModalOpen(false);
+                      setIsEditMode(false);
+                    }}
                     className="flex-1 py-3 bg-slate-100 text-slate-600 rounded-xl font-bold hover:bg-slate-200 transition-all"
                   >
                     Batal
@@ -202,7 +282,7 @@ export default function Products() {
                     type="submit"
                     className="flex-1 py-3 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 transition-all shadow-lg shadow-indigo-200"
                   >
-                    Simpan Produk
+                    {isEditMode ? 'Simpan Perubahan' : 'Simpan Produk'}
                   </button>
                 </div>
               </form>
@@ -356,7 +436,10 @@ export default function Products() {
                       >
                         <Plus size={18} />
                       </button>
-                      <button className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all">
+                      <button 
+                        onClick={() => openEditModal(product)}
+                        className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all"
+                      >
                         <Edit2 size={18} />
                       </button>
                       <button 

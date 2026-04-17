@@ -10,7 +10,8 @@ import {
   Banknote, 
   QrCode,
   CheckCircle2,
-  Package
+  Package,
+  Users
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -21,6 +22,7 @@ export default function PoS() {
   const [isSuccess, setIsSuccess] = useState(false);
   const [discount, setDiscount] = useState(0);
   const [cashReceived, setCashReceived] = useState('');
+  const [customerPhone, setCustomerPhone] = useState('');
   const [lastTransaction, setLastTransaction] = useState<any>(null);
 
   const filteredProducts = products.filter(p => 
@@ -55,11 +57,12 @@ export default function PoS() {
       change: paymentMethod === 'cash' ? change : undefined,
     };
 
-    addTransaction(transaction);
+    addTransaction(transaction, customerPhone || undefined);
     setLastTransaction(transaction);
     clearCart();
     setDiscount(0);
     setCashReceived('');
+    setCustomerPhone('');
     setIsSuccess(true);
   };
 
@@ -283,6 +286,18 @@ export default function PoS() {
         </div>
 
         <div className="p-6 bg-slate-50 border-t border-slate-100 space-y-4">
+          {/* Customer Input */}
+          <div className="relative">
+            <Users className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+            <input 
+              type="text" 
+              placeholder="No. WA Pelanggan (Pilihan)" 
+              value={customerPhone}
+              onChange={(e) => setCustomerPhone(e.target.value)}
+              className="w-full pl-9 pr-4 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold focus:outline-none focus:ring-2 focus:ring-indigo-500/20"
+            />
+          </div>
+
           <div className="space-y-2">
             <div className="flex justify-between text-sm text-slate-500">
               <span>Subtotal</span>
